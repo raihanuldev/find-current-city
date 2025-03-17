@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Current Location (City Name)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Find Your Current City</h2>
+        <button onclick="getLocation()">Get My City</button>
+        <p id="output">Click the button to get your city.</p>
+    </div>
+
+    <script>
+        function getLocation() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        getCityName(lat, lon);
+                    },
+                    (error) => {
+                        document.getElementById("output").innerHTML = 
+                            "❌ Error: " + error.message;
+                    }
+                );
+            } else {
+                document.getElementById("output").innerHTML = 
+                    "❌ Geolocation is not supported by your browser.";
+            }
+        }
+
+        function getCityName(lat, lon) {
+            const apiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+            
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const city = data.address.city || data.address.town || data.address.village || "Unknown";
+                    const state = data.address.state || "";
+                    document.getElementById("output").innerHTML = 
+                        `📍 You are in <strong>${city}, ${state}</strong>`;
+                })
+                .catch(error => {
+                    document.getElementById("output").innerHTML = 
+                        "❌ Error fetching location data.";
+                });
+        }
+    </script>
+
+</body>
+</html>
